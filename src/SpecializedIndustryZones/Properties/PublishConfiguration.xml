@@ -22,9 +22,36 @@ so you will never e.g. see a wood pile spawn in an oil zone.
 # Zone Types
 Currently there are four new zone types, one for each of the base game resources:
 * Agriculture
+  * Grain
+  * Livestock
+  * Vegetables
+  * Cotton
+  * Beverages
+  * Convenience Food
+  * Food
+  * Textiles
 * Forestry
+  * Wood
+  * Timber
+  * Paper
+  * Furniture
 * Oil
+  * Oil
+  * Petrochemicals
+  * Chemicals
+  * Pharmaceuticals
+  * Plastics
+  * Electronics
 * Ore
+  * Ore
+  * Coal
+  * Stone
+  * Minerals
+  * Concrete
+  * Steel
+  * Metals
+  * Machinery
+  * Vehicles
 
 # Compatibility
 This mod is implemented by adding net-new zone prefabs to the game, and copying the base game's set of industrial buildings

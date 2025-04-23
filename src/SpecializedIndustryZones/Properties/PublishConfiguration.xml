@@ -62,6 +62,10 @@ it should be compatible with any mod that doesn't disable the vanilla industrial
 	<Thumbnail Value="Properties/Thumbnail.png" />
 	<!--Screenshot, can be set multiple times-->
 	<Screenshot Value="Properties/Screenshot1.jpg" />
+	<Screenshot Value="Properties/Screenshot2.jpg" />
+	<Screenshot Value="Properties/Screenshot3.jpg" />
+	<Screenshot Value="Properties/Screenshot4.jpg" />
+	<Screenshot Value="Properties/Screenshot5.jpg" />
 	<!--Tag, can be set multiple times-->
 	<Tag Value="" />
 	<!--Link to the forum post where the mod can be discussed-->

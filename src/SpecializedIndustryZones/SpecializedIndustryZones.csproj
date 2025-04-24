@@ -16,10 +16,10 @@
     <Import Project="$([System.Environment]::GetEnvironmentVariable('CSII_TOOLPATH', 'EnvironmentVariableTarget.User'))\Mod.targets" />
 
     <ItemGroup>
-        <Reference Include="Colossal.Collections">
-            <HintPath>C:\Program Files\WindowsApps\ParadoxInteractive.CitiesSkylinesII-PCEdition_1.2.5.0_x64__zfnrdv2de78ny\Cities2_Data\Managed\Colossal.Collections.dll</HintPath>
-        </Reference>
         <Reference Include="Game">
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Colossal.Collections">
             <Private>false</Private>
         </Reference>
         <Reference Include="Colossal.Core">

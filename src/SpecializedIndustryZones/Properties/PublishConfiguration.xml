@@ -81,7 +81,7 @@ error state and must be manually deleted.
 	<!--Link to the forum post where the mod can be discussed-->
 	<ForumLink Value="https://forum.paradoxplaza.com/forum/threads/specialized-industrial-zones.1737148/" />
 	<!--Version of the mod-->
-	<ModVersion Value="0.1.1" />
+	<ModVersion Value="0.1.2" />
 	<!--Recommended version of the base game to use the mod-->
 	<GameVersion Value="1.0.*" />
 	<!--Dependency for the mod, can be set multiple times-->

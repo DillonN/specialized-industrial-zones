@@ -79,7 +79,7 @@ error state and must be manually deleted.
 	<!--Tag, can be set multiple times-->
 	<Tag Value="" />
 	<!--Link to the forum post where the mod can be discussed-->
-	<ForumLink Value="" />
+	<ForumLink Value="https://forum.paradoxplaza.com/forum/threads/specialized-industrial-zones.1737148/" />
 	<!--Version of the mod-->
 	<ModVersion Value="0.1.1" />
 	<!--Recommended version of the base game to use the mod-->

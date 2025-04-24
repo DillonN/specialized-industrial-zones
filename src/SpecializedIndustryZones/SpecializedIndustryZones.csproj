@@ -1,89 +1,87 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<OutputType>Library</OutputType>
-		<TargetFramework>net472</TargetFramework>
-		<Configurations>Debug;Release</Configurations>
-		
-		<!--The file where mod information which is required for publishing mod on PDX mods are stored-->
-		<PublishConfigurationPath>Properties\PublishConfiguration.xml</PublishConfigurationPath>
-		<LangVersion>12</LangVersion>
-		<Nullable>enable</Nullable>
-	</PropertyGroup>
-	
-	<!--Imports must be after PropertyGroup block-->
-	<Import Project="$([System.Environment]::GetEnvironmentVariable('CSII_TOOLPATH', 'EnvironmentVariableTarget.User'))\Mod.props" />
-	<Import Project="$([System.Environment]::GetEnvironmentVariable('CSII_TOOLPATH', 'EnvironmentVariableTarget.User'))\Mod.targets" />
+    <PropertyGroup>
+        <OutputType>Library</OutputType>
+        <TargetFramework>net472</TargetFramework>
+        <Configurations>Debug;Release</Configurations>
 
-	<ItemGroup>
-		<Reference Include="Colossal.Collections">
-		  <HintPath>C:\Program Files\WindowsApps\ParadoxInteractive.CitiesSkylinesII-PCEdition_1.2.5.0_x64__zfnrdv2de78ny\Cities2_Data\Managed\Colossal.Collections.dll</HintPath>
-		</Reference>
-		<Reference Include="Game">
-			<Private>false</Private>
-		</Reference>
-		<Reference Include="Colossal.Core">
-			<Private>false</Private>
-		</Reference>
-		<Reference Include="Colossal.Logging">
-			<Private>false</Private>
-		</Reference>
-		<Reference Include="Colossal.Mathematics">
-			<Private>false</Private>
-		</Reference>
-		<Reference Include="Colossal.IO.AssetDatabase">
-			<Private>false</Private>
-		</Reference>
-		<Reference Include="Colossal.UI">
-			<Private>false</Private>
-		</Reference>
-		<Reference Include="Colossal.UI.Binding">
-			<Private>false</Private>
-		</Reference>
-		<Reference Include="Colossal.Localization">
-			<Private>false</Private>
-		</Reference>
-		<Reference Include="Unity.InputSystem">
-			<Private>false</Private>
-		</Reference>
-		<Reference Include="UnityEngine.CoreModule">
-			<Private>false</Private>
-		</Reference>
-		<Reference Include="Unity.Burst">
-			<Private>false</Private>
-		</Reference>
-		<Reference Include="Unity.Collections">
-			<Private>false</Private>
-		</Reference>
-		<Reference Include="Unity.Entities">
-			<Private>false</Private>
-		</Reference>
-		<Reference Include="Unity.Mathematics">
-			<Private>false</Private>
-		</Reference>
-	</ItemGroup>
+        <!--The file where mod information which is required for publishing mod on PDX mods are stored-->
+        <PublishConfigurationPath>Properties\PublishConfiguration.xml</PublishConfigurationPath>
+        <LangVersion>12</LangVersion>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
 
-	<ItemGroup>
-		<Reference Update="System">
-			<Private>false</Private>
-		</Reference>
-		<Reference Update="System.Core">
-			<Private>false</Private>
-		</Reference>
-		<Reference Update="System.Data">
-			<Private>false</Private>
-		</Reference>
-	</ItemGroup>
+    <!--Imports must be after PropertyGroup block-->
+    <Import Project="$([System.Environment]::GetEnvironmentVariable('CSII_TOOLPATH', 'EnvironmentVariableTarget.User'))\Mod.props" />
+    <Import Project="$([System.Environment]::GetEnvironmentVariable('CSII_TOOLPATH', 'EnvironmentVariableTarget.User'))\Mod.targets" />
 
-	<ItemGroup>
-		<None Include="$(ModPropsFile)" Link="Properties\Mod.props" />
-		<None Include="$(ModTargetsFile)" Link="Properties\Mod.targets" />
-	</ItemGroup>
+    <ItemGroup>
+        <Reference Include="Colossal.Collections">
+            <HintPath>C:\Program Files\WindowsApps\ParadoxInteractive.CitiesSkylinesII-PCEdition_1.2.5.0_x64__zfnrdv2de78ny\Cities2_Data\Managed\Colossal.Collections.dll</HintPath>
+        </Reference>
+        <Reference Include="Game">
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Colossal.Core">
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Colossal.Logging">
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Colossal.Mathematics">
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Colossal.IO.AssetDatabase">
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Colossal.UI">
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Colossal.UI.Binding">
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Colossal.Localization">
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Unity.InputSystem">
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="UnityEngine.CoreModule">
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Unity.Burst">
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Unity.Collections">
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Unity.Entities">
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Unity.Mathematics">
+            <Private>false</Private>
+        </Reference>
+    </ItemGroup>
 
-	<ItemGroup>
-	  <PackageReference Include="CS2-ModdingTools" Version="1.0.5" />
-	  <PackageReference Include="Lib.Harmony" Version="2.3.5" />
-	  <PackageReference Include="System.Text.Json" Version="9.0.4" />
-	</ItemGroup>
+    <ItemGroup>
+        <Reference Update="System">
+            <Private>false</Private>
+        </Reference>
+        <Reference Update="System.Core">
+            <Private>false</Private>
+        </Reference>
+        <Reference Update="System.Data">
+            <Private>false</Private>
+        </Reference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="$(ModPropsFile)" Link="Properties\Mod.props" />
+        <None Include="$(ModTargetsFile)" Link="Properties\Mod.targets" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="CS2-ModdingTools" Version="1.0.5" PrivateAssets="All" />
+    </ItemGroup>
 
 </Project>

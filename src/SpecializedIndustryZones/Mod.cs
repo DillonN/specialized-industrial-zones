@@ -1,16 +1,19 @@
 ﻿using Colossal.IO.AssetDatabase;
 using Colossal.Logging;
+using Colossal.UI;
 using Game;
 using Game.Modding;
 using Game.Prefabs;
 using Game.SceneFlow;
 using Game.UI.InGame;
+using System.IO;
 using Unity.Entities;
 
 namespace SpecializedIndustryZones
 {
     public class Mod : IMod
     {
+        public const string HostName = "speciz";
         public static ILog log = LogManager.GetLogger($"{nameof(SpecializedIndustryZones)}.{nameof(Mod)}").SetShowsErrorsInUI(false);
         private Setting m_Setting;
 
@@ -20,6 +23,9 @@ namespace SpecializedIndustryZones
 
             if (GameManager.instance.modManager.TryGetExecutableAsset(this, out var asset))
                 log.Info($"Current mod asset at {asset.path}");
+
+            var path = Path.GetDirectoryName(asset.GetMeta().path);
+            UIManager.defaultUISystem.AddHostLocation(HostName, Path.Combine(path, "Assets/"));
 
             m_Setting = new Setting(this);
             //m_Setting.RegisterInOptionsUI();

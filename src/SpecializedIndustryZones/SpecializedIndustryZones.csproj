@@ -84,4 +84,12 @@
         <PackageReference Include="CS2-ModdingTools" Version="1.0.5" PrivateAssets="All" />
     </ItemGroup>
 
+	<ItemGroup>
+		<Assets Include="$(ProjectDir)/Assets/*" />
+	</ItemGroup>
+
+	<Target Name="CopyAssets" AfterTargets="Build">
+		<Copy SourceFiles="@(Assets)" DestinationFolder="$(DeployDir)/Assets/" SkipUnchangedFiles="true" />
+	</Target>
+
 </Project>

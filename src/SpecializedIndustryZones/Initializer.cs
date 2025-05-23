@@ -54,7 +54,10 @@ internal class Initializer(
         zoneProps.m_AllowedManufactured = spec.ApplyFilter(zoneProps.m_AllowedManufactured);
         zoneProps.m_AllowedSold = spec.ApplyFilter(zoneProps.m_AllowedSold);
         zoneProps.m_AllowedStored = spec.ApplyFilter(zoneProps.m_AllowedStored);
-        
+
+        var uiObj = zone.GetComponent<UIObject>();
+        uiObj.m_Icon = $"coui://{Mod.HostName}/ZoneIndustrialManufacturing_{spec.Name}.svg";
+
         _prefabSystem.AddPrefab(zone);
         return zone;
     }
@@ -121,7 +124,7 @@ internal class Initializer(
         where T : PrefabBase
     {
         var newName = source.name.Replace("Industrial", $"Specialized Industrial {name}");
-        var clone = source.Clone(newName);
-        return (T)clone;
+        var clone = (T)source.Clone(newName);
+        return clone;
     }
 }

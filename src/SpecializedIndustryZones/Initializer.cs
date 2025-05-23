@@ -51,12 +51,19 @@ internal class Initializer(
         zone.m_Edge = spec.Color;
 
         var zoneProps = zone.GetComponent<ZoneProperties>();
-        zoneProps.m_AllowedManufactured = spec.ApplyFilter(zoneProps.m_AllowedManufactured);
+        zoneProps.m_AllowedManufactured = spec.ApplyFilter(zoneProps.m_AllowedManufactured, IndustryType.Manufacturing);
         zoneProps.m_AllowedSold = spec.ApplyFilter(zoneProps.m_AllowedSold);
-        zoneProps.m_AllowedStored = spec.ApplyFilter(zoneProps.m_AllowedStored);
+        zoneProps.m_AllowedStored = spec.ApplyFilter(zoneProps.m_AllowedStored, IndustryType.Warehouses);
+
+        var iconBase = spec.Type switch
+        {
+            IndustryType.General or IndustryType.Manufacturing => "ZoneIndustrialManufacturing",
+            IndustryType.Warehouses => "ZoneIndustrialWarehouses",
+            _ => throw new ArgumentOutOfRangeException(nameof(spec.Type), spec.Type, "Invalid type")
+        };
 
         var uiObj = zone.GetComponent<UIObject>();
-        uiObj.m_Icon = $"coui://{Mod.HostName}/ZoneIndustrialManufacturing_{spec.Name}.svg";
+        uiObj.m_Icon = $"coui://{Mod.HostName}/{iconBase}_{spec.Specialization}.svg";
 
         _prefabSystem.AddPrefab(zone);
         return zone;
@@ -68,11 +75,25 @@ internal class Initializer(
         {
             if (sourceBuilding.TryGet<BuildingProperties>(out var sourceBuildingProperties))
             {
-                if (!sourceBuildingProperties.m_AllowedManufactured.Intersect(spec.Filter).Any() &&
-                    !sourceBuildingProperties.m_AllowedSold.Intersect(spec.Filter).Any() &&
-                    !sourceBuildingProperties.m_AllowedStored.Intersect(spec.Filter).Any())
+                var hasRelevantManufactured = sourceBuildingProperties.m_AllowedManufactured.Intersect(spec.Filter).Any();
+                var hasRelevantSold = sourceBuildingProperties.m_AllowedSold.Intersect(spec.Filter).Any();
+                var hasRelevantStored = sourceBuildingProperties.m_AllowedStored.Intersect(spec.Filter).Any();
+
+                if (!hasRelevantManufactured && !hasRelevantSold && !hasRelevantStored)
                 {
                     // Not applicable to this specialization
+                    continue;
+                }
+
+                if (spec.Type == IndustryType.Manufacturing && !hasRelevantManufactured)
+                {
+                    // No relevant manufacturing capability
+                    continue;
+                }
+
+                if (spec.Type == IndustryType.Warehouses && !hasRelevantStored)
+                {
+                    // No relevant warehouse capability
                     continue;
                 }
             }
@@ -84,9 +105,9 @@ internal class Initializer(
 
             if (building.TryGet<BuildingProperties>(out var buildingProperties))
             {
-                buildingProperties.m_AllowedManufactured = spec.ApplyFilter(buildingProperties.m_AllowedManufactured);
+                buildingProperties.m_AllowedManufactured = spec.ApplyFilter(buildingProperties.m_AllowedManufactured, IndustryType.Manufacturing);
                 buildingProperties.m_AllowedSold = spec.ApplyFilter(buildingProperties.m_AllowedSold);
-                buildingProperties.m_AllowedStored = spec.ApplyFilter(buildingProperties.m_AllowedStored);
+                buildingProperties.m_AllowedStored = spec.ApplyFilter(buildingProperties.m_AllowedStored, IndustryType.Warehouses);
             }
             
             _prefabSystem.AddPrefab(building);

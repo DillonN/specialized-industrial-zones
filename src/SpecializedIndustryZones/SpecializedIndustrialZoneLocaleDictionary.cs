@@ -33,7 +33,15 @@ public class SpecializedIndustrialZoneLocaleDictionary(
 
         if (activeDict.TryGetValue(baseDescriptionID, out var baseDescription))
         {
-            var description = string.Join(", ", _spec.Filter);
+            var prefix = _spec.Type switch
+            {
+                IndustryType.General => "Manufacturing and warehouses",
+                IndustryType.Manufacturing => "Manufacturing only",
+                IndustryType.Warehouses => "Warehouses only",
+                _ => "Unknown"
+            };
+            var includedResources = string.Join(", ", _spec.Filter);
+            var description = $"{prefix} - {includedResources}";
             yield return new KeyValuePair<string, string>(descriptionID, baseDescription + $" [{description}]");
         }
         else

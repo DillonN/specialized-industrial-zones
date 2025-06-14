@@ -84,9 +84,9 @@ error state and must be manually deleted.
 	<!--Link to the forum post where the mod can be discussed-->
 	<ForumLink Value="https://forum.paradoxplaza.com/forum/threads/specialized-industrial-zones.1737148/" />
 	<!--Version of the mod-->
-	<ModVersion Value="0.2.0" />
+	<ModVersion Value="0.2.1" />
 	<!--Recommended version of the base game to use the mod-->
-	<GameVersion Value="1.2.*" />
+	<GameVersion Value="1.3.*" />
 	<!--Dependency for the mod, can be set multiple times-->
 	<Dependency Id="" />
 	<!--Required DLC, can be set multiple times. Supported values are "Landmark Buildings", "San Fransisco Set", "Beach Properties", "Urban Promenades", "Modern Architecture"-->
@@ -94,8 +94,10 @@ error state and must be manually deleted.
 	<!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
 	<ChangeLog>
 # Improvements
-* Added extra zoning options for warehouses-only or manufacturing-only
-* Added resources to icons to better differentiate between the zones
+* Update target game version to 1.3.x
+# Fixes
+* Handle building prefabs that have obsolete IDs attached to them which may have otherwise been skipped
+* Update the new prefab IDs to better match vanilla formatting
     </ChangeLog>
 	<!--External link, can be set multiple times. supported types are "discord", "github", "youtube", "twitch", "x", "paypal", "patreon", "buymeacoffee", "kofi", "crowdin", "gitlab", "gofundme"-->
 	<ExternalLink Type="github" Url="https://github.com/DillonN/specialized-industrial-zones" />

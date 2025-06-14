@@ -85,7 +85,7 @@
 
     <ItemGroup>
         <PackageReference Include="CS2-ModdingTools" Version="1.0.5" PrivateAssets="All" />
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" PrivateAssets="All" />
     </ItemGroup>
 
 	<ItemGroup>

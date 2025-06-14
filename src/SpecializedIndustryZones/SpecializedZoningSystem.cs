@@ -4,9 +4,12 @@ using Game;
 using Game.Prefabs;
 using Game.SceneFlow;
 using Game.UI.InGame;
+using Game.UI.Widgets;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
@@ -24,6 +27,16 @@ internal partial class SpecializedZoningSystem : GameSystemBase
 
     private List<PrefabBase> _allPrefabs = default!;
     private ZonePrefab[] _initialZones = default!;
+
+    private static readonly JsonSerializerSettings JsonSettings = new()
+    {
+        ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+        Formatting = Formatting.Indented,
+        Converters = [new StringEnumConverter()]
+    };
+
+    private DateTimeOffset _lastFileCheck;
+    private DateTimeOffset _lastFileModifiedTimestamp;
 
     protected override void OnCreate()
     {
@@ -46,23 +59,70 @@ internal partial class SpecializedZoningSystem : GameSystemBase
                 .ToArray();
             _spawnableBuildingsByZone[zone] = spawnableBuildings;
         }
+    }
 
-        var specs = GetZoneSpecs();
+    protected override void OnUpdate()
+    {
+        var now = DateTimeOffset.UtcNow;
+        if ((now - _lastFileCheck).TotalSeconds < 5)
+        {
+            return;
+        }
+
+        _lastFileCheck = now;
+
+        if (!File.Exists(ZoneFilePath))
+        {
+            var defaultSpecs = GenerateDefaultSpecs().ToList();
+            SaveZoneFile(defaultSpecs);
+        }
+
+        var lastModified = File.GetLastWriteTimeUtc(ZoneFilePath);
+
+        if (lastModified == _lastFileModifiedTimestamp)
+        {
+            _log.Trace("No changes detected in zone file, skipping update.");
+            return;
+        }
+
+        _lastFileModifiedTimestamp = lastModified;
+        _log.InfoFormat("Reloading specialized zones from file '{0}'.", ZoneFilePath);
+        var sw = Stopwatch.StartNew();
+        
+        var specs = LoadZoneFile();
+        if (specs == null)
+        {
+            _log.Warn("No specs loaded, cannot provision zones.");
+            return;
+        }
+
+        var numLoaded = 0;
         foreach (var spec in specs)
         {
-            if (_provisionedZones.ContainsKey(spec.ID))
-            {
-                continue;
-            }
-
             try
             {
-                var zone = ProvisionZone(spec);
-                if (zone != null)
+                var success = false;
+                if (!_provisionedZones.TryGetValue(spec.ID, out var zone))
                 {
-                    _provisionedZones[spec.ID] = zone;
-                    _log.Debug($"Provisioned zone: {spec.Name}");
+                    zone = CreateZonePrefab(spec);
+                    success = _prefabSystem.AddPrefab(zone);
                 }
+                else
+                {
+                    var replacementZone = CreateZonePrefab(spec);
+                    _prefabSystem.UpdatePrefab(replacementZone);
+                    success = true;
+                }
+
+                if (zone == null || !success)
+                {
+                    _log.Error($"Failed to provision zone: {spec.ID}");
+                    continue;
+                }
+
+                _provisionedZones[spec.ID] = zone;
+                _log.Debug($"Provisioned zone: {spec.ID} ({spec.Name})");
+                numLoaded++;
             }
             catch (Exception e)
             {
@@ -70,25 +130,12 @@ internal partial class SpecializedZoningSystem : GameSystemBase
                 continue;
             }
         }
+
+        sw.Stop();
+        _log.InfoFormat("{0} specialized zones reloaded in {1} ms.", numLoaded, sw.ElapsedMilliseconds);
     }
 
-    protected override void OnUpdate()
-    {
-        // TODO dynamic updates
-    }
-
-    private List<SpecializedZoneSpec> GetZoneSpecs()
-    {
-        var existingSpecs = LoadZoneFile();
-        if (existingSpecs != null) return existingSpecs;
-
-        _log.Info("No existing zone file found, generating default specs.");
-        var defaultSpecs = GenerateDefaultSpecs().ToList();
-        SaveZoneFile(defaultSpecs);
-        return defaultSpecs;
-    }
-
-    private static readonly string ZoneFilePath = Path.Combine(EnvPath.kUserDataPath, "SpecializedZones.json");
+    private static readonly string ZoneFilePath = Path.Combine(EnvPath.kUserDataPath, "ModsData", "SpecializedZones", "SpecializedZones.json");
 
     private List<SpecializedZoneSpec>? LoadZoneFile()
     {
@@ -100,10 +147,7 @@ internal partial class SpecializedZoningSystem : GameSystemBase
         try
         {
             var json = File.ReadAllText(ZoneFilePath);
-            return JsonConvert.DeserializeObject<List<SpecializedZoneSpec>>(json, new JsonSerializerSettings
-            {
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-            });
+            return JsonConvert.DeserializeObject<List<SpecializedZoneSpec>>(json, JsonSettings);
         }
         catch (Exception e)
         {
@@ -116,10 +160,13 @@ internal partial class SpecializedZoningSystem : GameSystemBase
     {
         try
         {
-            var json = JsonConvert.SerializeObject(specs, new JsonSerializerSettings
+            var directory = Path.GetDirectoryName(ZoneFilePath) ?? throw new Exception("Zone file directory is null");
+            if (!Directory.Exists(directory))
             {
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-            });
+                Directory.CreateDirectory(directory);
+            }
+
+            var json = JsonConvert.SerializeObject(specs, JsonSettings);
             File.WriteAllText(ZoneFilePath, json);
             _log.Info("Specialized zones saved to file.");
         }
@@ -173,7 +220,7 @@ internal partial class SpecializedZoningSystem : GameSystemBase
         }
     }
 
-    private ZonePrefab? ProvisionZone(SpecializedZoneSpec spec)
+    private ZonePrefab? CreateZonePrefab(SpecializedZoneSpec spec)
     {
         var baseZone = _initialZones.FirstOrDefault(z => z.name == spec.BaseZoneName)
             ?? throw new Exception($"Base zone '{spec.BaseZoneName}' not found for specialized zone '{spec.Name}'");
@@ -222,7 +269,6 @@ internal partial class SpecializedZoningSystem : GameSystemBase
 
         HandleObsoleteIdentifiers(sourceZone, zone, spec);
 
-        _prefabSystem.AddPrefab(zone);
         return zone;
     }
 
@@ -274,7 +320,12 @@ internal partial class SpecializedZoningSystem : GameSystemBase
 
             try
             {
-                _prefabSystem.AddPrefab(building);
+                var success = _prefabSystem.AddPrefab(building);
+                if (!success)
+                {
+                    _log.Error($"Failed to add specialized building prefab {building.name} to PrefabSystem. It may already exist or be invalid.");
+                    continue;
+                }
             }
             catch (Exception e)
             {

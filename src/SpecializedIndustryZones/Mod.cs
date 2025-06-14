@@ -24,7 +24,7 @@ namespace SpecializedIndustryZones
             var path = Path.GetDirectoryName(asset.GetMeta().path);
             UIManager.defaultUISystem.AddHostLocation(HostName, Path.Combine(path, "Assets/"));
 
-            updateSystem.UpdateAfter<SpecializedZoningSystem, PrefabSystem>(SystemUpdatePhase.MainLoop);
+            updateSystem.UpdateBefore<SpecializedZoningSystem, PrefabSystem>(SystemUpdatePhase.MainLoop);
 
             //m_Setting = new Setting(this);
             //m_Setting.RegisterInOptionsUI();

@@ -1,10 +1,13 @@
 ﻿using Colossal.Logging;
+using Colossal.PSI.Environment;
 using Game;
 using Game.Prefabs;
 using Game.SceneFlow;
 using Game.UI.InGame;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace SpecializedIndustryZones;
@@ -74,7 +77,59 @@ internal partial class SpecializedZoningSystem : GameSystemBase
         // TODO dynamic updates
     }
 
-    private IEnumerable<SpecializedZoneSpec> GetZoneSpecs()
+    private List<SpecializedZoneSpec> GetZoneSpecs()
+    {
+        var existingSpecs = LoadZoneFile();
+        if (existingSpecs != null) return existingSpecs;
+
+        _log.Info("No existing zone file found, generating default specs.");
+        var defaultSpecs = GenerateDefaultSpecs().ToList();
+        SaveZoneFile(defaultSpecs);
+        return defaultSpecs;
+    }
+
+    private static readonly string ZoneFilePath = Path.Combine(EnvPath.kUserDataPath, "SpecializedZones.json");
+
+    private List<SpecializedZoneSpec>? LoadZoneFile()
+    {
+        if (!File.Exists(ZoneFilePath))
+        {
+            return null;
+        }
+
+        try
+        {
+            var json = File.ReadAllText(ZoneFilePath);
+            return JsonConvert.DeserializeObject<List<SpecializedZoneSpec>>(json, new JsonSerializerSettings
+            {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            });
+        }
+        catch (Exception e)
+        {
+            Mod.log.Error(e, "Failed to load specialized zones from file.");
+            return null;
+        }
+    }
+
+    private void SaveZoneFile(List<SpecializedZoneSpec> specs)
+    {
+        try
+        {
+            var json = JsonConvert.SerializeObject(specs, new JsonSerializerSettings
+            {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            });
+            File.WriteAllText(ZoneFilePath, json);
+            _log.Info("Specialized zones saved to file.");
+        }
+        catch (Exception e)
+        {
+            _log.Error(e, "Failed to save specialized zones to file.");
+        }
+    }
+
+    private IEnumerable<SpecializedZoneSpec> GenerateDefaultSpecs()
     {
         foreach (var zone in SpecializedZoneSpecSource.AllZones)
         {

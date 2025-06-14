@@ -7,6 +7,8 @@ namespace SpecializedIndustryZones;
 
 public class SpecializedZoneSpec
 {
+    public string ID => $"{Specialization}{Type}";
+
     public string Name => Type == IndustryType.General ? Specialization.ToString() : $"{Specialization} - {Type} Only";
 
     public IndustrySpecialization Specialization { get; set; }

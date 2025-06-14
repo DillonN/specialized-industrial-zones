@@ -6,6 +6,8 @@ using Game.Modding;
 using Game.Prefabs;
 using Game.SceneFlow;
 using Game.UI.InGame;
+using System;
+using System.Diagnostics;
 using System.IO;
 using Unity.Entities;
 
@@ -36,7 +38,22 @@ namespace SpecializedIndustryZones
             var prefabSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<PrefabSystem>();
             var prefabUISystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<PrefabUISystem>();
             var initializer = new Initializer(prefabSystem, prefabUISystem, log);
-            initializer.Initialize();
+
+            var sw = new Stopwatch();
+            sw.Start();
+
+            log.Info("Initializing new prefabs");
+            try
+            {
+                initializer.Initialize();
+            }
+            catch (Exception e)
+            {
+                log.Error($"Error during initialization: {e}");
+            }
+
+            sw.Stop();
+            log.Info($"Initialization completed in {sw.ElapsedMilliseconds} ms");
         }
 
         public void OnDispose()

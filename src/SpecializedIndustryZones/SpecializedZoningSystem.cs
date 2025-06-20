@@ -1,6 +1,7 @@
 ﻿using Colossal.Logging;
 using Colossal.PSI.Environment;
 using Game;
+using Game.Buildings;
 using Game.Prefabs;
 using Game.SceneFlow;
 using Game.UI.InGame;
@@ -101,15 +102,21 @@ internal partial class SpecializedZoningSystem : GameSystemBase
         {
             try
             {
+                var baseZone = _initialZones.FirstOrDefault(z => z.name == spec.BaseZoneName)
+                    ?? throw new Exception($"Base zone '{spec.BaseZoneName}' not found for specialized zone '{spec.Name}'");
+                var combinedFilter = spec.CombinedFilter;
+
+                var existing = false;
                 var success = false;
                 if (!_provisionedZones.TryGetValue(spec.ID, out var zone))
                 {
-                    zone = CreateZonePrefab(spec);
+                    zone = CreateZonePrefab(spec, baseZone, combinedFilter);
                     success = _prefabSystem.AddPrefab(zone);
                 }
                 else
                 {
-                    var replacementZone = CreateZonePrefab(spec);
+                    existing = true;
+                    var replacementZone = CreateZonePrefab(spec, baseZone, combinedFilter);
                     _prefabSystem.UpdatePrefab(replacementZone);
                     success = true;
                 }
@@ -119,6 +126,35 @@ internal partial class SpecializedZoningSystem : GameSystemBase
                     _log.Error($"Failed to provision zone: {spec.ID}");
                     continue;
                 }
+
+                var buildings = CopyBuildings(spec, zone, baseZone, combinedFilter);
+                foreach (var building in buildings)
+                {
+                    try
+                    {
+                        if (existing)
+                        {
+                            _prefabSystem.UpdatePrefab(building);
+                            success = true;
+                        }
+                        else
+                        {
+                            success = _prefabSystem.AddPrefab(building);
+                        }
+
+                        if (!success)
+                        {
+                            _log.Error($"Failed to add specialized building prefab {building.name} to PrefabSystem. It may already exist or be invalid.");
+                            continue;
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        _log.Error($"Failed to add building prefab {building.name}: {e}");
+                    }
+                }
+
+                ApplyUILabels(spec, baseZone, zone);
 
                 _provisionedZones[spec.ID] = zone;
                 _log.Debug($"Provisioned zone: {spec.ID} ({spec.Name})");
@@ -220,20 +256,9 @@ internal partial class SpecializedZoningSystem : GameSystemBase
         }
     }
 
-    private ZonePrefab? CreateZonePrefab(SpecializedZoneSpec spec)
+    private ZonePrefab? CreateZonePrefab(SpecializedZoneSpec spec, ZonePrefab sourceZone, SpecializedZoneFilterSpec combinedFilter)
     {
-        var baseZone = _initialZones.FirstOrDefault(z => z.name == spec.BaseZoneName)
-            ?? throw new Exception($"Base zone '{spec.BaseZoneName}' not found for specialized zone '{spec.Name}'");
-
-        var combinedFilter = spec.CombinedFilter;
-        var zone = CreateSpecializedZonePrefab(spec, baseZone, combinedFilter);
-        if (zone == null)
-        {
-            return null;
-        }
-
-        CopyBuildings(spec, zone, baseZone, combinedFilter);
-        ApplyUILabels(spec, baseZone, zone);
+        var zone = CreateSpecializedZonePrefab(spec, sourceZone, combinedFilter);
 
         return zone;
     }
@@ -272,12 +297,12 @@ internal partial class SpecializedZoningSystem : GameSystemBase
         return zone;
     }
 
-    private void CopyBuildings(SpecializedZoneSpec spec, ZonePrefab zone, ZonePrefab sourceZone, SpecializedZoneFilterSpec combinedFilter)
+    private IEnumerable<BuildingPrefab> CopyBuildings(SpecializedZoneSpec spec, ZonePrefab zone, ZonePrefab sourceZone, SpecializedZoneFilterSpec combinedFilter)
     {
         if (!_spawnableBuildingsByZone.TryGetValue(sourceZone, out var buildings))
         {
             _log.Error($"No spawnable buildings found for zone {sourceZone.name}");
-            return;
+            yield break;
         }
 
         foreach (var sourceBuilding in buildings)
@@ -318,19 +343,7 @@ internal partial class SpecializedZoningSystem : GameSystemBase
 
             HandleObsoleteIdentifiers(sourceBuilding, building, spec);
 
-            try
-            {
-                var success = _prefabSystem.AddPrefab(building);
-                if (!success)
-                {
-                    _log.Error($"Failed to add specialized building prefab {building.name} to PrefabSystem. It may already exist or be invalid.");
-                    continue;
-                }
-            }
-            catch (Exception e)
-            {
-                _log.Error($"Failed to add building prefab {building.name}: {e}");
-            }
+            yield return building;
         }
     }
 

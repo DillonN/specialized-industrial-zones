@@ -1,7 +1,5 @@
 # Specialized Industrial Zones
 
-**INITIAL ALPHA VERSION**: Currently experimental.
-
 Adds new industrial zoning options to the game that are restricted to specific industrial resources.
 These zones will spawn the same buildings you're used to from the general industrial zone,
 but they are filtered to only spawn buildings that produce the resource of the zone.

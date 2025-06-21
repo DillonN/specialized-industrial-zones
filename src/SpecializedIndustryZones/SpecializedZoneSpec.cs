@@ -1,14 +1,13 @@
 ﻿using Game.Economy;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
 namespace SpecializedIndustryZones;
 
-public class SpecializedZoneSpec(string id, string name, string baseZoneName, string description)
+public class SpecializedZoneSpec(string name, string baseZoneName, string description)
 {
-    public string ID => id;
-
     public string Name => name;
 
     public string BaseZoneName => baseZoneName;
@@ -21,12 +20,15 @@ public class SpecializedZoneSpec(string id, string name, string baseZoneName, st
 
     public IList<SpecializedZoneFilterSpec> Filters { get; set; } = [];
 
+    [JsonIgnore]
     public SpecializedZoneFilterSpec CombinedFilter => Filters.Count == 0 ? new() : Filters.Aggregate((agg, curr) => new()
     {
-        IndustryType = curr.IndustryType ?? agg.IndustryType,
         ManufacturedResources = IntersectOptionalSets(agg.ManufacturedResources, curr.ManufacturedResources),
         StoredResources = IntersectOptionalSets(agg.StoredResources, curr.StoredResources),
-        SoldResources = IntersectOptionalSets(agg.SoldResources, curr.SoldResources)
+        SoldResources = IntersectOptionalSets(agg.SoldResources, curr.SoldResources),
+        RequireManufactured = agg.RequireManufactured ?? curr.RequireManufactured,
+        RequireStored = agg.RequireStored ?? curr.RequireStored,
+        RequireSold = agg.RequireSold ?? curr.RequireSold
     });
 
     private static ISet<T>? IntersectOptionalSets<T>(ISet<T>? set1, ISet<T>? set2)
@@ -40,11 +42,15 @@ public class SpecializedZoneSpec(string id, string name, string baseZoneName, st
 
 public class SpecializedZoneFilterSpec
 {
-    public IndustryType? IndustryType { get; set; }
-
     public ISet<ResourceInEditor>? ManufacturedResources { get; set; }
 
     public ISet<ResourceInEditor>? StoredResources { get; set; }
 
     public ISet<ResourceInEditor>? SoldResources { get; set; }
+
+    public bool? RequireManufactured { get; set; }
+
+    public bool? RequireStored { get; set; }
+
+    public bool? RequireSold { get; set; }
 }

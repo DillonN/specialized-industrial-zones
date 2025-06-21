@@ -31,26 +31,6 @@ namespace SpecializedIndustryZones
             //GameManager.instance.localizationManager.AddSource("en-US", new LocaleEN(m_Setting));
             
             //AssetDatabase.global.LoadSettings(nameof(SpecializedIndustryZones), m_Setting, new Setting(this));
-
-            //var prefabSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<PrefabSystem>();
-            //var prefabUISystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<PrefabUISystem>();
-            //var initializer = new Initializer(prefabSystem, prefabUISystem, log);
-
-            //var sw = new Stopwatch();
-            //sw.Start();
-
-            //log.Info("Initializing new prefabs");
-            //try
-            //{
-            //    initializer.Initialize();
-            //}
-            //catch (Exception e)
-            //{
-            //    log.Error($"Error during initialization: {e}");
-            //}
-
-            //sw.Stop();
-            //log.Info($"Initialization completed in {sw.ElapsedMilliseconds} ms");
         }
 
         public void OnDispose()

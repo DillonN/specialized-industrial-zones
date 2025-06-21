@@ -1,11 +1,9 @@
 ﻿using Colossal.Logging;
 using Colossal.PSI.Environment;
 using Game;
-using Game.Buildings;
 using Game.Prefabs;
 using Game.SceneFlow;
 using Game.UI.InGame;
-using Game.UI.Widgets;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System;
@@ -60,6 +58,9 @@ internal partial class SpecializedZoningSystem : GameSystemBase
                 .ToArray();
             _spawnableBuildingsByZone[zone] = spawnableBuildings;
         }
+
+        var zonesText = string.Join('\n', _initialZones.Select(z => z.name));
+        _log.InfoFormat("Loaded {0} zones:\n{1}", _initialZones.Length, zonesText);
     }
 
     protected override void OnUpdate()
@@ -318,6 +319,18 @@ internal partial class SpecializedZoningSystem : GameSystemBase
                     // Not applicable to this specialization
                     continue;
                 }
+
+                if (combinedFilter.IndustryType == IndustryType.Manufacturing && !hasRelevantManufactured)
+                {
+                    // Only manufacturing buildings are allowed in this specialization
+                    continue;
+                }
+
+                if (combinedFilter.IndustryType == IndustryType.Warehouses && !hasRelevantStored)
+                {
+                    // Only warehouse buildings are allowed in this specialization
+                    continue;
+                }
             }
 
             var building = Clone(sourceBuilding, spec);
@@ -409,7 +422,7 @@ internal partial class SpecializedZoningSystem : GameSystemBase
             return originalName.Replace("Industrial", $"SpecializedIndustrial{spec.ID}");
         }
 
-        throw new Exception($"Could not determine how to rename prefab {originalName} for specialization {spec.ID}.");
+        return originalName + spec.ID;
     }
 
     private void HandleObsoleteIdentifiers(PrefabBase sourcePrefab, PrefabBase newPrefab, SpecializedZoneSpec spec)

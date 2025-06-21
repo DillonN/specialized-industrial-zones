@@ -1,75 +1,43 @@
 ﻿<Publish>
 	<!--Id must be set in order to update existed mod. it is not required for publishing mod for the first time-->
-	<ModId Value="106939" />
+	<!--Prod listing-->
+	<!--<ModId Value="106939" />-->
+	<!--Dev listing-->
+	<ModId Value="113675" />
 	<!--Name of the mod to display to players-->
-	<DisplayName Value="Specialized Industrial Zones" />
+	<DisplayName Value="Specialized Industrial Zones [alpha]" />
 	<!--Short description of the mod-->
 	<ShortDescription Value="Enable zoning of specific industries" />
 	<!--Long description of the mod. Single line or multi line. Supports minimal markdown subset-->
 	<LongDescription>
 # Specialized Industrial Zones
 
-Adds new industrial zoning options to the game that are restricted to specific industrial resources.
-These zones will spawn the same buildings you're used to from the general industrial zone,
-but they are filtered to only spawn buildings that produce the resource of the zone.
+# Alpha version
+This is the alpha version of the mod, see [Specialized Industrial Zones](https://mods.paradoxplaza.com/mods/106939/Windows) for the stable version.
 
-As of version 0.2.0, there are additional zoning options for warehouses-only or manufacturing-only.
+This version is unstable and may contain bugs.
 
-**NOTE**: The production buildings are mostly the same across various resources, as they are capable of
-producing any resource. However, storage buildings are mostly distinct for the raw resources they store
-so you will never e.g. see a wood pile spawn in an oil zone.
+# 0.3-alpha updates
 
-# Zone Types
-Currently there are four new zone types, one for each of the base game resources.
-For each type, there is a General, Warehouse-only, and Manufacturing-only option, meaning 12 new zones are added in total.
+## Custom zones
 
-## Agriculture
+The zone types are now driven by a JSON file in the mod data folder - `C:\Users\{user}\AppData\LocalLow\Colossal Order\Cities Skylines II\ModsData\SpecializedZones\SpecializedZones.json`.
 
-* Grain
-* Livestock
-* Vegetables
-* Cotton
-* Beverages
-* Convenience Food
-* Food
-* Textiles
+You can edit this file and the game will live update. **NOTE THIS IS HIGHLY EXPERIMENTAL!** 
 
-## Forestry
+Current limitations:
+* If you delete or change the ID of a zone, any placements of that zone will have the same behaviour as when uninstalling the mod
+  * The zone is removed, buildings change to white boxes and get flagged as condemned, eventually auto-demolished.
+* There is no UI yet but that is planned before 0.3 final release.
+* JSON file schema is subject to change.
+* Commercial zones can be used as the base zones, but haven't been tested much yet.
+  * They can be used by setting `BaseZoneName` to e.g. `NA Commercial Low`.
+  * The mod logs all available base zone names during initialization, Skyve is recommended for viewing (search `SpecializedIndustryZones.Mod`).
+  * Other zone types such as `Office High` can be used too, but there's zero testing for those.
+* If defined, `IconUri` has to point to a valid file in the game's internal UI host; you can leave it out of the definition to inherit the base zone's icon.
+* When you update filters, any non-conforming buildings that have spawned will see the companies move out and eventually get marked as abandoned.
+  * Note the game does not automatically demolish abandoned buildings.
 
-* Wood
-* Timber
-* Paper
-* Furniture
-
-## Oil
-
-* Oil
-* Petrochemicals
-* Chemicals
-* Pharmaceuticals
-* Plastics
-* Electronics
-
-## Ore
-
-* Ore
-* Coal
-* Stone
-* Minerals
-* Concrete
-* Steel
-* Metals
-* Machinery
-* Vehicles
-
-# Compatibility
-This mod is implemented by adding net-new zone prefabs to the game, and copying the base game's set of industrial buildings
-to attach to each zone with filters applied. Since it is only adding new content and re-using all the vanilla systems for spawning,
-it should be compatible with any mod that doesn't disable the vanilla industrial system.
-
-## Removing
-If this mod is removed, the industrial zones will be removed but the buildings may remain behind in an
-error state and must be manually deleted.
 	</LongDescription>
 	<!--Thumbnail-->
 	<Thumbnail Value="Properties/Thumbnail.png" />
@@ -84,7 +52,7 @@ error state and must be manually deleted.
 	<!--Link to the forum post where the mod can be discussed-->
 	<ForumLink Value="https://forum.paradoxplaza.com/forum/threads/specialized-industrial-zones.1737148/" />
 	<!--Version of the mod-->
-	<ModVersion Value="0.2.1" />
+	<ModVersion Value="0.3.0-alpha.1" />
 	<!--Recommended version of the base game to use the mod-->
 	<GameVersion Value="1.3.*" />
 	<!--Dependency for the mod, can be set multiple times-->
@@ -94,10 +62,7 @@ error state and must be manually deleted.
 	<!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
 	<ChangeLog>
 # Improvements
-* Update target game version to 1.3.x
-# Fixes
-* Handle building prefabs that have obsolete IDs attached to them which may have otherwise been skipped
-* Update the new prefab IDs to better match vanilla formatting
+* Enable custom zones
     </ChangeLog>
 	<!--External link, can be set multiple times. supported types are "discord", "github", "youtube", "twitch", "x", "paypal", "patreon", "buymeacoffee", "kofi", "crowdin", "gitlab", "gofundme"-->
 	<ExternalLink Type="github" Url="https://github.com/DillonN/specialized-industrial-zones" />

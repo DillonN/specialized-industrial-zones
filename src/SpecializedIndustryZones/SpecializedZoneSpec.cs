@@ -1,221 +1,56 @@
+﻿using Game.Economy;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;
-using Game.Economy;
 using UnityEngine;
 
 namespace SpecializedIndustryZones;
 
-public class SpecializedZoneSpec
+public class SpecializedZoneSpec(string name, string baseZoneName, string description)
 {
-    public string ID => $"{Specialization}{Type}";
+    public string Name => name;
 
-    public string Name => Type == IndustryType.General ? Specialization.ToString() : $"{Specialization} - {Type} Only";
+    public string BaseZoneName => baseZoneName;
 
-    public IndustrySpecialization Specialization { get; set; }
+    public string Description => description;
 
-    public IndustryType Type { get; set; }
-    
     public Color Color { get; set; }
-    
-    public HashSet<ResourceInEditor> Filter { get; set; }
-    
-    public ResourceInEditor[] ApplyFilter(ResourceInEditor[] source) => [.. source.Where(Filter.Contains)];
 
-    public ResourceInEditor[] ApplyFilter(ResourceInEditor[] source, IndustryType forType) =>
-        (Type == IndustryType.General || Type == forType) ?
-        ApplyFilter(source) :
-        [];
+    public string? IconUri { get; set; }
 
-    public static readonly IReadOnlyList<SpecializedZoneSpec> AllZones =
-    [
-        new()
-        {
-            Specialization = IndustrySpecialization.Forestry,
-            Type = IndustryType.General,
-            Color = Color.green,
-            Filter =
-            [
-                ResourceInEditor.Wood,
-                ResourceInEditor.Timber,
-                ResourceInEditor.Paper,
-                ResourceInEditor.Furniture
-            ]
-        },
-        new()
-        {
-            Specialization = IndustrySpecialization.Agriculture,
-            Type = IndustryType.General,
-            Color = Color.red,
-            Filter =
-            [
-                ResourceInEditor.Grain,
-                ResourceInEditor.Livestock,
-                ResourceInEditor.Vegetables,
-                ResourceInEditor.Cotton,
-                ResourceInEditor.Beverages,
-                ResourceInEditor.ConvenienceFood,
-                ResourceInEditor.Food,
-                ResourceInEditor.Textiles
-            ]
-        },
-        new()
-        {
-            Specialization = IndustrySpecialization.Ore,
-            Type = IndustryType.General,
-            Color = Color.blue,
-            Filter =
-            [
-                ResourceInEditor.Ore,
-                ResourceInEditor.Coal,
-                ResourceInEditor.Stone,
-                ResourceInEditor.Minerals,
-                ResourceInEditor.Concrete,
-                ResourceInEditor.Steel,
-                ResourceInEditor.Metals,
-                ResourceInEditor.Machinery,
-                ResourceInEditor.Vehicles
-            ]
-        },
-        new()
-        {
-            Specialization = IndustrySpecialization.Oil,
-            Type = IndustryType.General,
-            Color = Color.black,
-            Filter =
-            [
-                ResourceInEditor.Oil,
-                ResourceInEditor.Petrochemicals,
-                ResourceInEditor.Chemicals,
-                ResourceInEditor.Pharmaceuticals,
-                ResourceInEditor.Plastics,
-                ResourceInEditor.Electronics
-            ]
-        },
-        new()
-        {
-            Specialization = IndustrySpecialization.Forestry,
-            Type = IndustryType.Manufacturing,
-            Color = Color.green,
-            Filter =
-            [
-                ResourceInEditor.Wood,
-                ResourceInEditor.Timber,
-                ResourceInEditor.Paper,
-                ResourceInEditor.Furniture
-            ]
-        },
-        new()
-        {
-            Specialization = IndustrySpecialization.Agriculture,
-            Type = IndustryType.Manufacturing,
-            Color = Color.red,
-            Filter =
-            [
-                ResourceInEditor.Grain,
-                ResourceInEditor.Livestock,
-                ResourceInEditor.Vegetables,
-                ResourceInEditor.Cotton,
-                ResourceInEditor.Beverages,
-                ResourceInEditor.ConvenienceFood,
-                ResourceInEditor.Food,
-                ResourceInEditor.Textiles
-            ]
-        },
-        new()
-        {
-            Specialization = IndustrySpecialization.Ore,
-            Type = IndustryType.Manufacturing,
-            Color = Color.blue,
-            Filter =
-            [
-                ResourceInEditor.Ore,
-                ResourceInEditor.Coal,
-                ResourceInEditor.Stone,
-                ResourceInEditor.Minerals,
-                ResourceInEditor.Concrete,
-                ResourceInEditor.Steel,
-                ResourceInEditor.Metals,
-                ResourceInEditor.Machinery,
-                ResourceInEditor.Vehicles
-            ]
-        },
-        new()
-        {
-            Specialization = IndustrySpecialization.Oil,
-            Type = IndustryType.Manufacturing,
-            Color = Color.black,
-            Filter =
-            [
-                ResourceInEditor.Oil,
-                ResourceInEditor.Petrochemicals,
-                ResourceInEditor.Chemicals,
-                ResourceInEditor.Pharmaceuticals,
-                ResourceInEditor.Plastics,
-                ResourceInEditor.Electronics
-            ]
-        },
-        new()
-        {
-            Specialization = IndustrySpecialization.Forestry,
-            Type = IndustryType.Warehouses,
-            Color = Color.green,
-            Filter =
-            [
-                ResourceInEditor.Wood,
-                ResourceInEditor.Timber,
-                ResourceInEditor.Paper,
-                ResourceInEditor.Furniture
-            ]
-        },
-        new()
-        {
-            Specialization = IndustrySpecialization.Agriculture,
-            Type = IndustryType.Warehouses,
-            Color = Color.red,
-            Filter =
-            [
-                ResourceInEditor.Grain,
-                ResourceInEditor.Livestock,
-                ResourceInEditor.Vegetables,
-                ResourceInEditor.Cotton,
-                ResourceInEditor.Beverages,
-                ResourceInEditor.ConvenienceFood,
-                ResourceInEditor.Food,
-                ResourceInEditor.Textiles
-            ]
-        },
-        new()
-        {
-            Specialization = IndustrySpecialization.Ore,
-            Type = IndustryType.Warehouses,
-            Color = Color.blue,
-            Filter =
-            [
-                ResourceInEditor.Ore,
-                ResourceInEditor.Coal,
-                ResourceInEditor.Stone,
-                ResourceInEditor.Minerals,
-                ResourceInEditor.Concrete,
-                ResourceInEditor.Steel,
-                ResourceInEditor.Metals,
-                ResourceInEditor.Machinery,
-                ResourceInEditor.Vehicles
-            ]
-        },
-        new()
-        {
-            Specialization = IndustrySpecialization.Oil,
-            Type = IndustryType.Warehouses,
-            Color = Color.black,
-            Filter =
-            [
-                ResourceInEditor.Oil,
-                ResourceInEditor.Petrochemicals,
-                ResourceInEditor.Chemicals,
-                ResourceInEditor.Pharmaceuticals,
-                ResourceInEditor.Plastics,
-                ResourceInEditor.Electronics
-            ]
-        },
-    ];
+    public IList<SpecializedZoneFilterSpec> Filters { get; set; } = [];
+
+    [JsonIgnore]
+    public SpecializedZoneFilterSpec CombinedFilter => Filters.Count == 0 ? new() : Filters.Aggregate((agg, curr) => new()
+    {
+        ManufacturedResources = IntersectOptionalSets(agg.ManufacturedResources, curr.ManufacturedResources),
+        StoredResources = IntersectOptionalSets(agg.StoredResources, curr.StoredResources),
+        SoldResources = IntersectOptionalSets(agg.SoldResources, curr.SoldResources),
+        RequireManufactured = agg.RequireManufactured ?? curr.RequireManufactured,
+        RequireStored = agg.RequireStored ?? curr.RequireStored,
+        RequireSold = agg.RequireSold ?? curr.RequireSold
+    });
+
+    private static ISet<T>? IntersectOptionalSets<T>(ISet<T>? set1, ISet<T>? set2)
+    {
+        if (set1 == null && set2 == null) return null;
+        if (set1 == null) return set2;
+        if (set2 == null) return set1;
+        return set1.Intersect(set2).ToHashSet();
+    }
+}
+
+public class SpecializedZoneFilterSpec
+{
+    public ISet<ResourceInEditor>? ManufacturedResources { get; set; }
+
+    public ISet<ResourceInEditor>? StoredResources { get; set; }
+
+    public ISet<ResourceInEditor>? SoldResources { get; set; }
+
+    public bool? RequireManufactured { get; set; }
+
+    public bool? RequireStored { get; set; }
+
+    public bool? RequireSold { get; set; }
 }

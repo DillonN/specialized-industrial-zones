@@ -1,4 +1,9 @@
-﻿using Colossal.Logging;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using Colossal.Logging;
 using Colossal.PSI.Environment;
 using Game;
 using Game.Economy;
@@ -7,11 +12,6 @@ using Game.SceneFlow;
 using Game.UI.InGame;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
 
 namespace SpecializedIndustryZones;
 
@@ -76,7 +76,26 @@ internal partial class SpecializedZoningSystem : GameSystemBase
 
         if (!File.Exists(ZoneFilePath))
         {
+            // Load extra specialized zones, once
+            var json_list = new List<string>
+            {
+                SpecializedZoneSpecSourceExtra.officeByEducation,
+                // SpecializedZoneSpecSourceExtra.commercialByEducation,
+                SpecializedZoneSpecSourceExtra.commercialByModel,
+                SpecializedZoneSpecSourceExtra.industryByEducation
+            };
             var defaultSpecs = new SpecializedZoneSpecFile();
+            foreach (var json in json_list)
+            {
+                var specs = LoadZoneJson(json);
+                if (specs != null)
+                {
+                    foreach (KeyValuePair<string, SpecializedZoneSpec> zone in specs.Zones)
+                    {
+                        defaultSpecs.Zones[zone.Key] = zone.Value;
+                    }
+                }
+            }
             foreach (var (specID, spec) in GenerateDefaultSpecs())
             {
                 defaultSpecs.Zones[specID] = spec;
@@ -96,12 +115,30 @@ internal partial class SpecializedZoningSystem : GameSystemBase
         _lastFileModifiedTimestamp = lastModified;
         _log.InfoFormat("Reloading specialized zones from file '{0}'.", ZoneFilePath);
         var sw = Stopwatch.StartNew();
-        
+
+        var numLoaded = UpdateFromZoneFile();
+
+        sw.Stop();
+        _log.InfoFormat("{0} specialized zones reloaded in {1} ms.", numLoaded, sw.ElapsedMilliseconds);
+    }
+
+    private int UpdateFromZoneFile()
+    {
         var specs = LoadZoneFile();
+        return UpdateFromSpecs(specs);
+    }
+    private int UpdateFromJson(string json)
+    {
+        var specs = LoadZoneJson(json);
+        return UpdateFromSpecs(specs);
+    }
+
+    private int UpdateFromSpecs(SpecializedZoneSpecFile? specs)
+    {
         if (specs == null)
         {
             _log.Warn("No specs loaded, cannot provision zones.");
-            return;
+            return 0;
         }
 
         var numLoaded = 0;
@@ -173,12 +210,10 @@ internal partial class SpecializedZoningSystem : GameSystemBase
                 continue;
             }
         }
-
-        sw.Stop();
-        _log.InfoFormat("{0} specialized zones reloaded in {1} ms.", numLoaded, sw.ElapsedMilliseconds);
+        return numLoaded;
     }
 
-    private static readonly string ZoneFilePath = Path.Combine(EnvPath.kUserDataPath, "ModsData", "SpecializedZones", "SpecializedZones.json");
+    private static readonly string ZoneFilePath = Filepaths.ZoneFilePath;
 
     private SpecializedZoneSpecFile? LoadZoneFile()
     {
@@ -190,11 +225,24 @@ internal partial class SpecializedZoningSystem : GameSystemBase
         try
         {
             var json = File.ReadAllText(ZoneFilePath);
-            return JsonConvert.DeserializeObject<SpecializedZoneSpecFile>(json, JsonSettings);
+            return LoadZoneJson(json);
         }
         catch (Exception e)
         {
             Mod.log.Error(e, "Failed to load specialized zones from file.");
+            return null;
+        }
+    }
+
+    private SpecializedZoneSpecFile? LoadZoneJson(String json)
+    {
+        try
+        {
+            return JsonConvert.DeserializeObject<SpecializedZoneSpecFile>(json, JsonSettings);
+        }
+        catch (Exception e)
+        {
+            Mod.log.Error(e, "Failed to load specialized zones from JSON.");
             return null;
         }
     }

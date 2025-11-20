@@ -52,9 +52,9 @@ Current limitations:
 	<!--Link to the forum post where the mod can be discussed-->
 	<ForumLink Value="https://forum.paradoxplaza.com/forum/threads/specialized-industrial-zones.1737148/" />
 	<!--Version of the mod-->
-	<ModVersion Value="0.3.0-alpha.2" />
+	<ModVersion Value="0.3.0-alpha.3" />
 	<!--Recommended version of the base game to use the mod-->
-	<GameVersion Value="1.3.*" />
+	<GameVersion Value="1.4.*" />
 	<!--Dependency for the mod, can be set multiple times-->
 	<Dependency Id="" />
 	<!--Required DLC, can be set multiple times. Supported values are "Landmark Buildings", "San Fransisco Set", "Beach Properties", "Urban Promenades", "Modern Architecture"-->
@@ -62,7 +62,7 @@ Current limitations:
 	<!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
 	<ChangeLog>
 # Improvements
-* Rebuild for game version 1.3.6f1
+* Rebuild for game version 1.4
     </ChangeLog>
 	<!--External link, can be set multiple times. supported types are "discord", "github", "youtube", "twitch", "x", "paypal", "patreon", "buymeacoffee", "kofi", "crowdin", "gitlab", "gofundme"-->
 	<ExternalLink Type="github" Url="https://github.com/DillonN/specialized-industrial-zones" />

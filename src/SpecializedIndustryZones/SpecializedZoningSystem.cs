@@ -104,6 +104,12 @@ internal partial class SpecializedZoningSystem : GameSystemBase
             return;
         }
 
+        if (specs.UpgradeIfNeeded())
+        {
+            SaveZoneFile(specs);
+            _log.Info($"Upgraded specialized zone specs to version {specs.Version}.");
+        }
+
         var numLoaded = 0;
         foreach (var (specID, spec) in specs.Zones)
         {

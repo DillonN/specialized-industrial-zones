@@ -12,7 +12,7 @@ public class SpecializedZoneSpec(string name, string baseZoneName, string descri
 
     public string BaseZoneName => baseZoneName;
 
-    public string Description => description;
+    public string Description { get; set; } = description;
 
     public Color Color { get; set; }
 
